@@ -1,6 +1,6 @@
 /**
  * server.js
- * 	- set up an Express.js server	
+ * 	- set up an Express.js server
  * 	- load config file (depends on the environment)
  * 	- connect to mongoDB
  * 	- configure various middleware
@@ -21,25 +21,25 @@ app.root = __dirname;
 app.config = require(app.root + '/config/' + app.set('env') + '.js');
 
 // Database Connect to mongo
-app.db = new Db(app.config.database.db, 
+app.db = new Db(app.config.database.db,
 				new Server(app.config.database.host, app.config.database.port, app.config.database.options)
 			);
 console.log("Connecting to MongoDB...");
 
 app.db.open(function(err) {
-	
+
 	// Don't start without MongoDB running
 	if(err) {
 		console.log(err);
 		return;
 	}
-	
+
 	// Middleware setup
-	app.use(express.logger());				// Enable request logging	
+	// app.use(express.logger());				// Enable request logging
 	app.use(express.bodyParser());		// parses urlencoded request bodies which populates req.body
-	app.use(express.methodOverride());	// sets a hidden input of _method to an arbitrary HTTP method 
+	app.use(express.methodOverride());	// sets a hidden input of _method to an arbitrary HTTP method
 	app.use(express.cookieParser());	// Required by session
-	
+
 	// Use connect-mongodb SessionStore
 	app.use( connect.session({
 		cookie: {maxAge: 60000 * 20}, // 20 minutes
@@ -47,10 +47,10 @@ app.db.open(function(err) {
 		store: new mongoStore({db: app.db})
 		})
 	);
-	
+
 	// User model
 	User = require(app.root + '/lib/user').init(app.db);
-	
+
 	// Authentication => populate req.current_user
 	app.use(
 		(function() {
@@ -64,7 +64,7 @@ app.db.open(function(err) {
 			};
 		})()
 	);
-	
+
 	app.dynamicHelpers({
 		 // req.flash to html helper
 		 messages: function(req, res){
@@ -95,13 +95,13 @@ app.db.open(function(err) {
 			return req.current_user;
 		}
 	});
-	
+
 	app.use(app.router);
 	app.use(express["static"](app.root + '/public'));
-	
+
 	app.set('views', app.root + '/lib/views');
 	app.set('view engine', 'ejs');
-	
+
 	app.error(function(err, req, res, next){
 		if (err.message == "Unauthorized") {
 			res.render('401', { status: 401, locals: {	title: 'Unauthorized', action: 'error', error: err }});
@@ -110,13 +110,13 @@ app.db.open(function(err) {
 			res.render('500', { status: 500, locals: {	title: 'Error', action: 'error', error: err }});
 		}
 	});
-	
-	
+
+
 	// Middleware for authentication checking
 	app.require_login = function(req, res, next) {
 		(!!req.current_user) ? next() : next(new Error('Unauthorized'));
 	};
-	
+
 	// Require all helpers & controllers
 	var loadDirs = ['helpers', 'controllers'];
 	loadDirs.forEach(function(dir) {
@@ -127,15 +127,15 @@ app.db.open(function(err) {
 			}
 		});
 	});
-	
+
 	// Catch all other routes
-	app.use(function(req,res) { 
+	app.use(function(req,res) {
 		res.render('404', { status: 404, locals: {	title: 'NotFound', action: 'error' }});
 	} );
 
 	// start the server
 	app.listen(app.config.server.port, app.config.server.ip);
-	
+
 	console.log("App started in '"+app.set('env')+"' environment !\n" +
 					"Listening on http://"+app.config.server.host+":"+app.config.server.port);
 
@@ -144,5 +144,5 @@ app.db.open(function(err) {
 		console.log('Caught exception: ' + err);
 		console.log(err.stack);
 	});
-	
+
 });
