@@ -14,7 +14,7 @@
     "directories": {
         "lib" : "lib"
     },
-    "bin" : { 
+    "bin" : {
 			"webhookit" : "./server.js"
 		},
     "dependencies": {
@@ -24,7 +24,7 @@
 				"ejs": "0.6.1",
 				"connect": "1.8.5",
 				"connect-mongodb": "1.1.2",
-				"npm": "1.1.0-2",
+				"npm": ">=1.1.0-2",
 				"xml2js-expat": ">=0.2.0",
 				"webhookit-comment": ">=0.0.2",
 				"webhookit-ejs": ">=0.0.2",
